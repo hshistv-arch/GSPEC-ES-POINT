@@ -452,8 +452,22 @@
   async function deleteEntryFromStorage(id) { await apiSend('/api/entries?id=' + encodeURIComponent(id), 'DELETE'); }
   async function saveConfig() { await apiSend('/api/config', 'POST', config); }
 
+  function normalizeName(name) {
+    return String(name || '').replace(/[\s　]+/g, '');
+  }
+
+  function canonicalPlayerName(rawName) {
+    const key = normalizeName(rawName);
+    const existing = entries.find(en => normalizeName(en.playerName) === key);
+    return existing ? existing.playerName : rawName;
+  }
+
   function updatePlayerList() {
-    const names = new Set(entries.map(e => e.playerName));
+    const names = new Map();
+    entries.forEach(e => {
+      const key = normalizeName(e.playerName);
+      if (key && !names.has(key)) names.set(key, e.playerName);
+    });
     const dl = $('playerList');
     dl.innerHTML = '';
     names.forEach(n => { const opt = document.createElement('option'); opt.value = n; dl.appendChild(opt); });
@@ -525,7 +539,7 @@
     const errBox = $('submitError');
     errBox.style.display = 'none';
 
-    const playerName = $('playerName').value.trim();
+    const playerName = canonicalPlayerName($('playerName').value.trim());
     const matchName = $('matchName').value.trim();
     const matchDate = $('matchDate').value;
     const rankName = $('matchRank').value;
@@ -778,8 +792,10 @@
     const stats = {};
     entries.forEach(e => {
       if (yearFilter !== 'all' && entryYear(e) !== yearFilter) return;
-      if (!stats[e.playerName]) stats[e.playerName] = { name: e.playerName, played: 0, points: 0 };
-      const s = stats[e.playerName];
+      const key = normalizeName(e.playerName);
+      if (!key) return;
+      if (!stats[key]) stats[key] = { name: e.playerName, played: 0, points: 0 };
+      const s = stats[key];
       s.played++;
       s.points += e.points;
     });

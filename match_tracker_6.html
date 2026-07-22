@@ -457,7 +457,7 @@
   async function saveConfig() { await apiSend('/api/config', 'POST', config); }
 
   function normalizeName(name) {
-    return String(name || '').replace(/[\s　]+/g, '');
+    return String(name || '').replace(/[\s　]+/g, '').toLowerCase();
   }
 
   function canonicalPlayerName(rawName) {

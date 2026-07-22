@@ -51,12 +51,13 @@
   }
   input:focus, select:focus { outline: none; border-color: var(--brass); background: #fff; }
 
+  .mt-photo-row { display: flex; align-items: center; gap: 12px; }
   .mt-photo-drop {
-    border: 1.5px dashed var(--line); border-radius: 8px; padding: 16px; text-align: center;
+    flex: 1; border: 1.5px dashed var(--line); border-radius: 8px; padding: 16px; text-align: center;
     cursor: pointer; color: var(--ink-soft); font-size: 13px; background: var(--chalk);
   }
   .mt-photo-drop:hover { border-color: var(--brass); }
-  .mt-photo-preview { max-width: 100%; max-height: 160px; border-radius: 6px; margin-top: 10px; display: none; }
+  .mt-photo-preview { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--line); display: none; flex-shrink: 0; }
   .mt-photo-clear { font-size: 12px; color: var(--loss-red); background: none; border: none; cursor: pointer; margin-top: 6px; display: none; }
 
   .mt-submit { width: 100%; padding: 13px; background: var(--brass); color: var(--felt-deep); border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px; letter-spacing: 0.03em; cursor: pointer; }
@@ -84,7 +85,9 @@
   .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 14px; }
   .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
   .mt-hist-note { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
-  .mt-hist-pts { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--felt); align-self: center; white-space: nowrap; }
+  .mt-hist-pts { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--felt); align-self: center; white-space: nowrap; flex-shrink: 0; text-align: right; }
+  .mt-hist-pts span { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
+  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 10px; font-weight: 500; color: var(--ink-soft); }
   .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 16px; padding: 0 4px; opacity: 0.6; align-self: center; }
   .mt-del:hover { opacity: 1; }
 
@@ -109,7 +112,7 @@
   .mt-edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(47,156,93,0.12); border: 1px solid var(--brass); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
   .mt-edit-banner button { font-size: 12px; color: var(--felt); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
 
-  .mt-hist-actions { display: flex; flex-direction: column; gap: 4px; align-self: center; }
+  .mt-hist-actions { display: flex; flex-direction: column; gap: 4px; align-self: center; flex-shrink: 0; }
   .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 15px; padding: 0 4px; opacity: 0.7; }
   .mt-edit:hover { opacity: 1; }
 
@@ -184,9 +187,11 @@
         <input type="text" id="matchNote" placeholder="対戦内容、感想など" style="margin-bottom:14px;">
 
         <label class="mt-label">写真</label>
-        <div class="mt-photo-drop" id="photoDrop">タップして写真を選択（任意）</div>
+        <div class="mt-photo-row">
+          <div class="mt-photo-drop" id="photoDrop">タップして写真を選択（任意）</div>
+          <img id="photoPreview" class="mt-photo-preview" alt="選択した写真のサムネイル">
+        </div>
         <input type="file" id="photoInput" accept="image/*" style="display:none;">
-        <img id="photoPreview" class="mt-photo-preview">
         <button class="mt-photo-clear" id="photoClear">写真を削除</button>
 
         <button class="mt-submit" id="submitMatch" style="margin-top:16px;">結果を登録する</button>
@@ -809,7 +814,7 @@
           <div class="mt-hist-tags">${e.matchDate || ''} ・ ${escapeHtml(e.rankName)} ・ ${escapeHtml(e.resultName)} ・ 還元率${e.percent}% ・ フィー${Number(e.entryFee).toLocaleString()}円</div>
           ${e.note ? `<div class="mt-hist-note">${escapeHtml(e.note)}</div>` : ''}
         </div>
-        <div class="mt-hist-pts">${e.points.toLocaleString()}pt</div>
+        <div class="mt-hist-pts">${e.points.toLocaleString()}<span>pt</span><small>還元ポイント</small></div>
         <div class="mt-hist-actions">
           <button class="mt-edit" data-id="${e.id}" title="編集する">✎</button>
           <button class="mt-del" data-id="${e.id}" title="削除する">✕</button>

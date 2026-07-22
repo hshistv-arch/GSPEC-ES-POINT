@@ -249,7 +249,13 @@
             <button class="mt-add-tag" id="addResultBtn">+ 行を追加</button>
           </div>
 
-          <label class="mt-label" style="margin-top:18px;">還元率マトリクス（%）</label>
+          <label class="mt-label" style="margin-top:18px;">還元率マトリクス（%）・年度</label>
+          <div class="mt-year-row" id="matrixYearRow"></div>
+          <div class="mt-add-row">
+            <input type="text" id="newMatrixYear" placeholder="新しい年度（例: 2027）">
+            <button class="mt-add-tag" id="addMatrixYearBtn">+ 年度を追加</button>
+          </div>
+          <p class="mt-settings-desc">新しい年度を追加すると、現在表示中の年度の設定がコピーされます。年度ごとに独立して編集・保存できるので、過去の年度の設定はそのまま残ります。</p>
           <div class="mt-matrix-wrap">
             <table class="mt-matrix" id="matrixTable"></table>
           </div>
@@ -289,15 +295,28 @@
     return {
       ranks: [...DEFAULT_RANKS],
       results: [...DEFAULT_RESULTS],
-      matrix: JSON.parse(JSON.stringify(DEFAULT_MATRIX)),
+      matrices: { [String(new Date().getFullYear())]: JSON.parse(JSON.stringify(DEFAULT_MATRIX)) },
       adminPassword: null
     };
+  }
+
+  function matrixYears() {
+    return Object.keys(config.matrices || {}).sort();
+  }
+
+  function getMatrixForYear(year) {
+    const years = matrixYears();
+    if (!years.length) return {};
+    if (config.matrices[year]) return config.matrices[year];
+    const lowerYears = years.filter(y => y <= year);
+    return config.matrices[lowerYears.length ? lowerYears[lowerYears.length - 1] : years[0]];
   }
 
   let entries = [];
   let config = defaultConfig();
   let photoDataUrl = null;
   let settingsUnlocked = false;
+  let settingsMatrixYear = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -321,7 +340,9 @@
     const rankName = $('matchRank').value;
     const resultName = $('matchResult').value;
     if (!rankName || !resultName) return 0;
-    const row = config.matrix[resultName];
+    const year = ($('matchDate').value || '').slice(0, 4) || String(new Date().getFullYear());
+    const matrix = getMatrixForYear(year);
+    const row = matrix[resultName];
     if (!row || row[rankName] === undefined) return 0;
     return row[rankName];
   }
@@ -334,6 +355,7 @@
   }
 
   ['entryFee'].forEach(id => $(id).addEventListener('input', updatePointsPreview));
+  $('matchDate').addEventListener('change', updatePointsPreview);
 
   // ---------- Photo handling ----------
   $('photoDrop').addEventListener('click', () => $('photoInput').click());
@@ -447,6 +469,13 @@
     }
 
     if (!config.ranks || !config.ranks.length) config = defaultConfig();
+    if (config.matrix && !config.matrices) {
+      config.matrices = { '2026': config.matrix };
+      delete config.matrix;
+    }
+    if (!config.matrices || !Object.keys(config.matrices).length) {
+      config.matrices = { [String(new Date().getFullYear())]: JSON.parse(JSON.stringify(DEFAULT_MATRIX)) };
+    }
 
     updatePlayerList();
     populateSelects();
@@ -699,9 +728,40 @@
   // ---------- Settings UI ----------
   function renderSettingsUI() {
     renderChips();
+    renderMatrixYearRow();
     renderMatrixTable();
     bindRelockAndPasswordChange();
   }
+
+  function renderMatrixYearRow() {
+    const row = $('matrixYearRow');
+    const years = matrixYears();
+    if (!settingsMatrixYear || !years.includes(settingsMatrixYear)) {
+      settingsMatrixYear = years[years.length - 1] || String(new Date().getFullYear());
+    }
+    row.innerHTML = years.map(y =>
+      `<button type="button" class="mt-year-pill${y === settingsMatrixYear ? ' active' : ''}" data-year="${escapeAttr(y)}">${escapeHtml(y)}年度</button>`
+    ).join('');
+    row.querySelectorAll('.mt-year-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settingsMatrixYear = btn.dataset.year;
+        renderMatrixYearRow();
+        renderMatrixTable();
+      });
+    });
+  }
+
+  $('addMatrixYearBtn').addEventListener('click', () => {
+    const year = $('newMatrixYear').value.trim();
+    if (!/^\d{4}$/.test(year)) { alert('年度は4桁の数字で入力してください（例: 2027）。'); return; }
+    if (config.matrices[year]) { alert('その年度はすでに存在します。'); return; }
+    const sourceYear = settingsMatrixYear || matrixYears()[matrixYears().length - 1];
+    config.matrices[year] = JSON.parse(JSON.stringify((sourceYear && config.matrices[sourceYear]) || {}));
+    settingsMatrixYear = year;
+    $('newMatrixYear').value = '';
+    renderMatrixYearRow();
+    renderMatrixTable();
+  });
 
   function renderChips() {
     const rankChips = $('rankChips');
@@ -713,7 +773,9 @@
         const name = btn.dataset.removeRank;
         if (config.ranks.length <= 1) { alert('最低1つはランクが必要です。'); return; }
         config.ranks = config.ranks.filter(r => r !== name);
-        config.results.forEach(res => { if (config.matrix[res]) delete config.matrix[res][name]; });
+        Object.values(config.matrices).forEach(matrix => {
+          config.results.forEach(res => { if (matrix[res]) delete matrix[res][name]; });
+        });
         renderSettingsUI();
         populateSelects();
         updatePointsPreview();
@@ -729,7 +791,7 @@
         const name = btn.dataset.removeResult;
         if (config.results.length <= 1) { alert('最低1つは結果が必要です。'); return; }
         config.results = config.results.filter(r => r !== name);
-        delete config.matrix[name];
+        Object.values(config.matrices).forEach(matrix => { delete matrix[name]; });
         renderSettingsUI();
         populateSelects();
         updatePointsPreview();
@@ -742,9 +804,11 @@
     if (!name) return;
     if (config.ranks.includes(name)) { alert('同じ名前のランクが既にあります。'); return; }
     config.ranks.push(name);
-    config.results.forEach(res => {
-      if (!config.matrix[res]) config.matrix[res] = {};
-      config.matrix[res][name] = 0;
+    Object.values(config.matrices).forEach(matrix => {
+      config.results.forEach(res => {
+        if (!matrix[res]) matrix[res] = {};
+        matrix[res][name] = 0;
+      });
     });
     $('newRankName').value = '';
     renderSettingsUI();
@@ -757,9 +821,11 @@
     if (!name) return;
     if (config.results.includes(name)) { alert('同じ名前の結果が既にあります。'); return; }
     config.results.push(name);
-    const row = {};
-    config.ranks.forEach(rk => { row[rk] = 0; });
-    config.matrix[name] = row;
+    Object.values(config.matrices).forEach(matrix => {
+      const row = {};
+      config.ranks.forEach(rk => { row[rk] = 0; });
+      matrix[name] = row;
+    });
     $('newResultName').value = '';
     renderSettingsUI();
     populateSelects();
@@ -768,10 +834,11 @@
 
   function renderMatrixTable() {
     const table = $('matrixTable');
+    const matrix = config.matrices[settingsMatrixYear] || {};
     let html = '<thead><tr><th></th>' + config.ranks.map(r => `<th>${escapeHtml(r)}</th>`).join('') + '</tr></thead><tbody>';
     config.results.forEach(res => {
       html += '<tr><th>' + escapeHtml(res) + '</th>' + config.ranks.map(rk => {
-        const val = (config.matrix[res] && config.matrix[res][rk] !== undefined) ? config.matrix[res][rk] : 0;
+        const val = (matrix[res] && matrix[res][rk] !== undefined) ? matrix[res][rk] : 0;
         return `<td><input type="number" class="mx-cell" data-result="${escapeAttr(res)}" data-rank="${escapeAttr(rk)}" value="${val}"></td>`;
       }).join('') + '</tr>';
     });
@@ -780,11 +847,13 @@
   }
 
   $('saveSettings').addEventListener('click', async () => {
+    if (!config.matrices[settingsMatrixYear]) config.matrices[settingsMatrixYear] = {};
+    const matrix = config.matrices[settingsMatrixYear];
     document.querySelectorAll('.mx-cell').forEach(input => {
       const res = input.dataset.result;
       const rk = input.dataset.rank;
-      if (!config.matrix[res]) config.matrix[res] = {};
-      config.matrix[res][rk] = Number(input.value) || 0;
+      if (!matrix[res]) matrix[res] = {};
+      matrix[res][rk] = Number(input.value) || 0;
     });
     await saveConfig();
     populateSelects();

@@ -86,21 +86,21 @@
   .mt-rules-text { white-space: pre-wrap; font-size: 32px; line-height: 1.8; color: var(--ink); }
   .mt-rules-input { width: 100%; min-height: 420px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk); line-height: 1.6; resize: vertical; }
 
-  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 22px; background: #fff; }
+  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 30px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
   .mt-hist-item.is-settled { background: #E7E5E1; }
-  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 70px; text-align: center; cursor: pointer; align-self: center; }
+  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 90px; text-align: center; cursor: pointer; align-self: center; }
   .mt-settle-toggle input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--brass); }
-  .mt-settle-toggle span { font-size: 16px; line-height: 1.3; color: var(--ink-soft); }
-  .mt-hist-thumb { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
+  .mt-settle-toggle span { font-size: 20px; line-height: 1.3; color: var(--ink-soft); }
+  .mt-hist-thumb { width: 75px; height: 75px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
   .mt-hist-main { flex: 1; min-width: 0; }
-  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; }
-  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--ink-soft); margin-top: 2px; }
-  .mt-hist-note { font-size: 20px; color: var(--ink-soft); margin-top: 3px; }
+  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 32px; }
+  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 24px; color: var(--ink-soft); margin-top: 2px; }
+  .mt-hist-note { font-size: 26px; color: var(--ink-soft); margin-top: 3px; }
   .mt-hist-pts { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--felt); align-self: center; white-space: nowrap; flex-shrink: 0; text-align: right; }
-  .mt-hist-pts span { font-size: 18px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
-  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 500; color: var(--ink-soft); }
-  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 32px; padding: 0 4px; opacity: 0.6; align-self: center; }
+  .mt-hist-pts span { font-size: 24px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
+  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 20px; font-weight: 500; color: var(--ink-soft); }
+  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 40px; padding: 0 4px; opacity: 0.6; align-self: center; }
   .mt-del:hover { opacity: 1; }
 
   .mt-settings-desc { font-size: 36px; color: var(--ink-soft); margin: -8px 0 14px; line-height: 1.6; }
@@ -125,7 +125,7 @@
   .mt-edit-banner button { font-size: 36px; color: var(--felt); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
 
   .mt-hist-actions { display: flex; flex-direction: column; gap: 4px; align-self: center; flex-shrink: 0; }
-  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 30px; padding: 0 4px; opacity: 0.7; }
+  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 38px; padding: 0 4px; opacity: 0.7; }
   .mt-edit:hover { opacity: 1; }
 
   .mt-year-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
@@ -243,6 +243,13 @@
 
     <!-- SETTINGS -->
     <div class="mt-panel" id="panel-settings">
+      <div class="mt-card">
+        <label class="mt-label">現在の還元率表（<span id="currentRateYear"></span>年度）</label>
+        <div class="mt-matrix-wrap">
+          <table class="mt-matrix" id="currentRateTable"></table>
+        </div>
+      </div>
+
       <div class="mt-card" id="settingsLocked"></div>
 
       <div id="settingsUnlockedWrap" style="display:none;">
@@ -374,6 +381,28 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     if (config.matrices[year]) return config.matrices[year];
     const lowerYears = years.filter(y => y <= year);
     return config.matrices[lowerYears.length ? lowerYears[lowerYears.length - 1] : years[0]];
+  }
+
+  function renderCurrentRateTable() {
+    const years = matrixYears();
+    if (!years.length) return;
+    const thisYear = String(new Date().getFullYear());
+    const displayYear = config.matrices[thisYear] ? thisYear
+      : (years.filter(y => y <= thisYear).slice(-1)[0] || years[0]);
+    const matrix = getMatrixForYear(displayYear);
+
+    $('currentRateYear').textContent = displayYear;
+
+    const table = $('currentRateTable');
+    let html = '<thead><tr><th></th>' + config.ranks.map(r => `<th>${escapeHtml(r)}</th>`).join('') + '</tr></thead><tbody>';
+    config.results.forEach(res => {
+      html += '<tr><th>' + escapeHtml(res) + '</th>' + config.ranks.map(rk => {
+        const val = (matrix[res] && matrix[res][rk] !== undefined) ? matrix[res][rk] : 0;
+        return `<td>${val}%</td>`;
+      }).join('') + '</tr>';
+    });
+    html += '</tbody>';
+    table.innerHTML = html;
   }
 
   let entries = [];
@@ -550,6 +579,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     renderLeaderboard();
     renderHistory();
     renderRules();
+    renderCurrentRateTable();
     updatePointsPreview();
   }
 
@@ -743,6 +773,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     const wrap = $('settingsUnlockedWrap');
 
     applyMaintenanceUI();
+    renderCurrentRateTable();
 
     if (settingsUnlocked) {
       gate.style.display = 'none';
@@ -813,6 +844,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     renderMatrixYearRow();
     renderMatrixTable();
     renderMaintenanceToggle();
+    renderCurrentRateTable();
     $('rulesTextInput').value = config.rulesText;
     bindRelockAndPasswordChange();
   }
@@ -883,6 +915,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     $('newMatrixYear').value = '';
     renderMatrixYearRow();
     renderMatrixTable();
+    renderCurrentRateTable();
   });
 
   function renderChips() {
@@ -980,6 +1013,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     await saveConfig();
     populateSelects();
     updatePointsPreview();
+    renderCurrentRateTable();
     const toast = $('settingsToast');
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 2000);

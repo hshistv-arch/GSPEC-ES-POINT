@@ -43,7 +43,7 @@
   .mt-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
   .mt-label { display: block; font-size: 36px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
   .mt-row { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-  .mt-row > div { flex: 1; min-width: 130px; }
+  .mt-row > div { flex: 1; min-width: 220px; }
 
   input[type="text"], input[type="date"], input[type="number"], select {
     width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px;
@@ -57,7 +57,7 @@
     cursor: pointer; color: var(--ink-soft); font-size: 39px; background: var(--chalk);
   }
   .mt-photo-drop:hover { border-color: var(--brass); }
-  .mt-photo-preview { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--line); display: none; flex-shrink: 0; }
+  .mt-photo-preview { width: 110px; height: 110px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--line); display: none; flex-shrink: 0; }
   .mt-photo-clear { font-size: 36px; color: var(--loss-red); background: none; border: none; cursor: pointer; margin-top: 6px; display: none; }
 
   .mt-submit { width: 100%; padding: 13px; background: var(--brass); color: var(--felt-deep); border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 45px; letter-spacing: 0.03em; cursor: pointer; }
@@ -67,7 +67,7 @@
   .mt-toast { margin-top: 10px; font-size: 39px; font-weight: 500; color: var(--win-green); display: none; }
   .mt-error { margin-top: 10px; font-size: 39px; font-weight: 500; color: var(--loss-red); display: none; }
 
-  .mt-lb-row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  .mt-lb-row { display: grid; grid-template-columns: minmax(64px, auto) 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
   .mt-lb-row:last-child { border-bottom: none; }
   .mt-rank { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 48px; color: var(--ink-soft); text-align: center; }
   .mt-lb-row:nth-child(1) .mt-rank { color: var(--brass); font-size: 60px; }
@@ -82,10 +82,10 @@
   .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 39px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
   .mt-hist-item.is-settled { background: #E7E5E1; }
-  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 54px; text-align: center; cursor: pointer; align-self: center; }
+  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 110px; text-align: center; cursor: pointer; align-self: center; }
   .mt-settle-toggle input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--brass); }
   .mt-settle-toggle span { font-size: 27px; line-height: 1.3; color: var(--ink-soft); }
-  .mt-hist-thumb { width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
+  .mt-hist-thumb { width: 90px; height: 90px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
   .mt-hist-main { flex: 1; min-width: 0; }
   .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 42px; }
   .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 33px; color: var(--ink-soft); margin-top: 2px; }
@@ -106,11 +106,11 @@
   .mt-add-tag { font-size: 36px; color: var(--felt); background: none; border: 1px dashed var(--line); border-radius: 6px; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
 
   .mt-matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
-  table.mt-matrix { border-collapse: collapse; width: 100%; min-width: 420px; }
+  table.mt-matrix { border-collapse: collapse; width: 100%; min-width: 640px; }
   table.mt-matrix th, table.mt-matrix td { border: 1px solid var(--line); padding: 6px; text-align: center; font-size: 36px; }
   table.mt-matrix thead th { background: var(--felt); color: var(--chalk); font-family: 'Playfair Display', serif; font-weight: 600; font-size: 36px; }
   table.mt-matrix tbody th { text-align: left; background: var(--chalk); font-weight: 600; white-space: nowrap; padding-left: 10px; }
-  table.mt-matrix input[type="number"] { width: 56px; padding: 4px; text-align: center; font-size: 36px; }
+  table.mt-matrix input[type="number"] { width: 100px; padding: 4px; text-align: center; font-size: 36px; }
 
   .mt-share-note { background: rgba(47,156,93,0.08); border: 1px solid rgba(47,156,93,0.3); border-radius: 8px; padding: 10px 14px; font-size: 36px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.6; }
 

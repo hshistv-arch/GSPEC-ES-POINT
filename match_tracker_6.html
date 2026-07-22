@@ -83,22 +83,24 @@
 
   .mt-empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-size: 42px; }
   .mt-maintenance-notice { background: #fff; border: 2px solid var(--loss-red); border-radius: 10px; padding: 30px 20px; text-align: center; color: var(--loss-red); font-weight: 700; font-size: 36px; margin-bottom: 16px; line-height: 1.6; }
+  .mt-rules-text { white-space: pre-wrap; font-size: 32px; line-height: 1.8; color: var(--ink); }
+  .mt-rules-input { width: 100%; min-height: 420px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk); line-height: 1.6; resize: vertical; }
 
-  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 39px; background: #fff; }
+  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 22px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
   .mt-hist-item.is-settled { background: #E7E5E1; }
-  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 110px; text-align: center; cursor: pointer; align-self: center; }
+  .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 70px; text-align: center; cursor: pointer; align-self: center; }
   .mt-settle-toggle input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--brass); }
-  .mt-settle-toggle span { font-size: 27px; line-height: 1.3; color: var(--ink-soft); }
-  .mt-hist-thumb { width: 90px; height: 90px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
+  .mt-settle-toggle span { font-size: 16px; line-height: 1.3; color: var(--ink-soft); }
+  .mt-hist-thumb { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
   .mt-hist-main { flex: 1; min-width: 0; }
-  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 42px; }
-  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 33px; color: var(--ink-soft); margin-top: 2px; }
-  .mt-hist-note { font-size: 36px; color: var(--ink-soft); margin-top: 3px; }
+  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; }
+  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--ink-soft); margin-top: 2px; }
+  .mt-hist-note { font-size: 20px; color: var(--ink-soft); margin-top: 3px; }
   .mt-hist-pts { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--felt); align-self: center; white-space: nowrap; flex-shrink: 0; text-align: right; }
-  .mt-hist-pts span { font-size: 33px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
-  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 30px; font-weight: 500; color: var(--ink-soft); }
-  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 48px; padding: 0 4px; opacity: 0.6; align-self: center; }
+  .mt-hist-pts span { font-size: 18px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
+  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 16px; font-weight: 500; color: var(--ink-soft); }
+  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 32px; padding: 0 4px; opacity: 0.6; align-self: center; }
   .mt-del:hover { opacity: 1; }
 
   .mt-settings-desc { font-size: 36px; color: var(--ink-soft); margin: -8px 0 14px; line-height: 1.6; }
@@ -123,7 +125,7 @@
   .mt-edit-banner button { font-size: 36px; color: var(--felt); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
 
   .mt-hist-actions { display: flex; flex-direction: column; gap: 4px; align-self: center; flex-shrink: 0; }
-  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 45px; padding: 0 4px; opacity: 0.7; }
+  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 30px; padding: 0 4px; opacity: 0.7; }
   .mt-edit:hover { opacity: 1; }
 
   .mt-year-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
@@ -146,6 +148,7 @@
     <button class="mt-tab active" data-tab="input">結果を入力</button>
     <button class="mt-tab" data-tab="ranking">ランキング</button>
     <button class="mt-tab" data-tab="history">履歴</button>
+    <button class="mt-tab" data-tab="rules">規定</button>
     <button class="mt-tab" data-tab="settings">還元率設定</button>
   </div>
 
@@ -231,6 +234,13 @@
       </div>
     </div>
 
+    <!-- RULES -->
+    <div class="mt-panel" id="panel-rules">
+      <div class="mt-card">
+        <div class="mt-rules-text" id="rulesDisplay"></div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="mt-panel" id="panel-settings">
       <div class="mt-card" id="settingsLocked"></div>
@@ -272,6 +282,13 @@
         </div>
 
         <div class="mt-card">
+          <label class="mt-label">規定の内容（「規定」タブに表示されます）</label>
+          <textarea id="rulesTextInput" class="mt-rules-input"></textarea>
+          <button class="mt-submit" id="saveRulesBtn" style="margin-top:12px;">規定を保存</button>
+          <div class="mt-toast" id="rulesToast">✓ 保存しました</div>
+        </div>
+
+        <div class="mt-card">
           <label class="mt-label">パスワードを変更</label>
           <input type="password" id="changePwInput" placeholder="新しいパスワード">
           <button class="mt-add-tag" id="changePwBtn" style="margin-top:8px;">変更する</button>
@@ -304,11 +321,45 @@
     '優勝': { SSG: 700, SG: 600, G1: 500, G2: 400, G3: 300 }
   };
 
+  const DEFAULT_RULES_TEXT = `■ESポイント（エントリーサポートポイント）について　　2026年1月吉日
+
+目的：より多くのG-SPeCメンバーが大会に出場し活躍頂けるよう、エントリーフィーと出場大会に応じたささやかなサポートを行います。
+
+■ESポイント付与資格
+・大会出場時には所属店をG-SPeCとし、G-SPeCポロシャツを着用する事。（ベスト着用時にはG-SPeCワッペン取り付け可）
+・Youtube配信等でポロシャツ着用が確認できない場合は、大会会場内でG-SPeCポロシャツ着用が分かる写真を撮影しポイント申請時に送付の事。
+・年内のポイント上限達成後もG-SPeCポロシャツを着用して、大会に出場を継続する事で翌年のポイント付与資格が得られる。
+
+■大会クラス
+SSGクラス：プロツアー,オープン戦　／　主な大会：グランプリ、ジャパンOP、セスパカップ 他
+SGクラス：アマチュアの試合 256人以上　／　主な大会：クラシック、球聖戦、東日本神奈川、東日本東京、マスターズ、アマナイン 他
+G1クラス：アマチュアの試合 128人以上　／　主な大会：東日本群馬 他
+G2クラス：アマチュアの試合 96人以上　／　主な大会：その他
+G3クラス：アマチュアの試合 64人以上　／　主な大会：その他
+
+※1)クラス別人数は大会エントリー枠数とする。
+※2)CSカードの必要可否は問わないものとする。
+※3)1/1～12/31までの期間を対象として、最大30,000P/人当たりのサポートを上限とする。ただし、1大会で30,000Pを上回る付与についてはその限りではない。（例：フィー7,000円 G1クラス優勝の場合 35,000Pを付与）
+※4)年間Total 100,000Pを上限とし、到達した時点でポイントサポートを終了する。（翌年の1/1にリセットとなります）
+※5)ポイントサポートはG-SPeCチップにて付与を行う。
+※6)100,000Pの上限に達しない場合は翌年度にキャリーオーバーで持ち越しとする。
+
+■ポイント申請時の記載例（大会終了後グループチャットに申請ください）
+・氏名（フルネーム）：
+・大会名：
+・大会クラス：
+・エントリーフィー：
+・大会結果：
+・ポロシャツ着用写真添付
+
+還元率（％）は「還元率設定」タブでご確認いただけます。`;
+
   function defaultConfig() {
     return {
       ranks: [...DEFAULT_RANKS],
       results: [...DEFAULT_RESULTS],
       matrices: { [String(new Date().getFullYear())]: JSON.parse(JSON.stringify(DEFAULT_MATRIX)) },
+      rulesText: DEFAULT_RULES_TEXT,
       adminPassword: null
     };
   }
@@ -342,6 +393,7 @@
       document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
       if (tab.dataset.tab === 'ranking') renderLeaderboard();
       if (tab.dataset.tab === 'history') renderHistory();
+      if (tab.dataset.tab === 'rules') renderRules();
       if (tab.dataset.tab === 'settings') renderSettingsGate();
     });
   });
@@ -489,6 +541,7 @@
     if (!config.matrices || !Object.keys(config.matrices).length) {
       config.matrices = { [String(new Date().getFullYear())]: JSON.parse(JSON.stringify(DEFAULT_MATRIX)) };
     }
+    if (typeof config.rulesText !== 'string') config.rulesText = DEFAULT_RULES_TEXT;
 
     updatePlayerList();
     populateSelects();
@@ -496,6 +549,7 @@
     renderSettingsGate();
     renderLeaderboard();
     renderHistory();
+    renderRules();
     updatePointsPreview();
   }
 
@@ -759,8 +813,27 @@
     renderMatrixYearRow();
     renderMatrixTable();
     renderMaintenanceToggle();
+    $('rulesTextInput').value = config.rulesText;
     bindRelockAndPasswordChange();
   }
+
+  function renderRules() {
+    $('rulesDisplay').textContent = config.rulesText;
+  }
+
+  $('saveRulesBtn').addEventListener('click', async () => {
+    config.rulesText = $('rulesTextInput').value;
+    try {
+      await saveConfig();
+    } catch (err) {
+      alert('保存に失敗しました。もう一度お試しください。');
+      return;
+    }
+    renderRules();
+    const toast = $('rulesToast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2000);
+  });
 
   function renderMaintenanceToggle() {
     const btn = $('maintenanceToggleBtn');

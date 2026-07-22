@@ -82,6 +82,7 @@
   .mt-lb-points span { font-size: 33px; font-weight: 400; color: var(--ink-soft); margin-left: 3px; }
 
   .mt-empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-size: 42px; }
+  .mt-maintenance-notice { background: #fff; border: 2px solid var(--loss-red); border-radius: 10px; padding: 30px 20px; text-align: center; color: var(--loss-red); font-weight: 700; font-size: 36px; margin-bottom: 16px; line-height: 1.6; }
 
   .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 39px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
@@ -154,11 +155,12 @@
 
     <!-- INPUT -->
     <div class="mt-panel active" id="panel-input">
+      <div class="mt-maintenance-notice" id="inputMaintenanceNotice" style="display:none;">🔧 ただいまメンテナンス中です。しばらくしてから再度お試しください。</div>
       <div class="mt-edit-banner" id="editBanner" style="display:none;">
         <span>この記録を編集中です</span>
         <button type="button" id="cancelEditBtn">編集をやめる</button>
       </div>
-      <div class="mt-card">
+      <div class="mt-card" id="inputFormCard">
         <label class="mt-label">選手名</label>
         <input type="text" id="playerName" list="playerList" placeholder="例: 田中" style="margin-bottom:14px;">
         <datalist id="playerList"></datalist>
@@ -274,6 +276,12 @@
           <input type="password" id="changePwInput" placeholder="新しいパスワード">
           <button class="mt-add-tag" id="changePwBtn" style="margin-top:8px;">変更する</button>
           <div class="mt-toast" id="changePwToast">✓ 変更しました</div>
+        </div>
+
+        <div class="mt-card">
+          <label class="mt-label">メンテナンスモード</label>
+          <p class="mt-settings-desc" style="margin-top:0;">ONにすると、あなた以外の参加者からは「結果を入力」「ランキング」「履歴」が一時的に見られなくなります（この設定タブは引き続き操作できます）。</p>
+          <button class="mt-submit" id="maintenanceToggleBtn"></button>
         </div>
       </div>
     </div>
@@ -663,9 +671,24 @@
   });
 
   // ---------- Settings password gate ----------
+  function isMaintenanceActive() {
+    return !!config.maintenanceMode && !settingsUnlocked;
+  }
+
+  function applyMaintenanceUI() {
+    const active = isMaintenanceActive();
+    $('inputMaintenanceNotice').style.display = active ? 'block' : 'none';
+    $('inputFormCard').style.display = active ? 'none' : '';
+    $('editBanner').style.display = active ? 'none' : $('editBanner').style.display;
+    renderLeaderboard();
+    renderHistory();
+  }
+
   function renderSettingsGate() {
     const gate = $('settingsLocked');
     const wrap = $('settingsUnlockedWrap');
+
+    applyMaintenanceUI();
 
     if (settingsUnlocked) {
       gate.style.display = 'none';
@@ -735,8 +758,29 @@
     renderChips();
     renderMatrixYearRow();
     renderMatrixTable();
+    renderMaintenanceToggle();
     bindRelockAndPasswordChange();
   }
+
+  function renderMaintenanceToggle() {
+    const btn = $('maintenanceToggleBtn');
+    const on = !!config.maintenanceMode;
+    btn.textContent = on ? 'メンテナンスを解除する' : 'メンテナンスを開始する';
+    btn.style.background = on ? 'var(--loss-red)' : 'var(--brass)';
+  }
+
+  $('maintenanceToggleBtn').addEventListener('click', async () => {
+    config.maintenanceMode = !config.maintenanceMode;
+    try {
+      await saveConfig();
+    } catch (err) {
+      config.maintenanceMode = !config.maintenanceMode;
+      alert('保存に失敗しました。もう一度お試しください。');
+      return;
+    }
+    renderMaintenanceToggle();
+    applyMaintenanceUI();
+  });
 
   function renderMatrixYearRow() {
     const row = $('matrixYearRow');
@@ -929,8 +973,13 @@
   }
 
   function renderLeaderboard() {
-    renderYearRow();
     const board = $('leaderboard');
+    if (isMaintenanceActive()) {
+      $('rankingYearRow').innerHTML = '';
+      board.innerHTML = '<div class="mt-maintenance-notice">🔧 ただいまメンテナンス中です。しばらくしてから再度お試しください。</div>';
+      return;
+    }
+    renderYearRow();
     const standings = computeStandings(rankingYearFilter);
     if (standings.length === 0) {
       board.innerHTML = '<div class="mt-empty">まだ試合結果がありません。「結果を入力」タブから登録してください。</div>';
@@ -980,8 +1029,13 @@
   }
 
   function renderHistory() {
-    renderHistoryYearRow();
     const list = $('historyList');
+    if (isMaintenanceActive()) {
+      $('historyYearRow').innerHTML = '';
+      list.innerHTML = '<div class="mt-maintenance-notice">🔧 ただいまメンテナンス中です。しばらくしてから再度お試しください。</div>';
+      return;
+    }
+    renderHistoryYearRow();
     if (entries.length === 0) {
       list.innerHTML = '<div class="mt-empty">履歴はまだありません。</div>';
       return;

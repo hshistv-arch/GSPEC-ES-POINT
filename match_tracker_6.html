@@ -260,6 +260,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
 <script>
 (function() {
   const DEFAULT_RANKS = ['SSG', 'SG', 'G1', 'G2', 'G3'];
@@ -327,15 +328,40 @@
 
   // ---------- Photo handling ----------
   $('photoDrop').addEventListener('click', () => $('photoInput').click());
-  $('photoInput').addEventListener('change', (e) => {
+  $('photoInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    compressImage(file, (dataUrl) => {
+
+    let workingFile = file;
+    const isHeic = /heic|heif/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+    if (isHeic) {
+      if (typeof heic2any !== 'function') {
+        alert('この写真形式（HEIC）を変換する準備がまだ整っていません。数秒待ってからもう一度お試しください。');
+        $('photoInput').value = '';
+        return;
+      }
+      $('photoDrop').textContent = '写真を変換中...';
+      try {
+        const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.8 });
+        workingFile = Array.isArray(converted) ? converted[0] : converted;
+      } catch (err) {
+        alert('この写真（HEIC形式）を変換できませんでした。別の写真を選ぶか、共有前にJPEG形式で保存してからお試しください。');
+        $('photoInput').value = '';
+        $('photoDrop').textContent = photoDataUrl ? '写真を変更する' : 'タップして写真を選択（任意）';
+        return;
+      }
+    }
+
+    compressImage(workingFile, (dataUrl) => {
       photoDataUrl = dataUrl;
       $('photoPreview').src = dataUrl;
       $('photoPreview').style.display = 'block';
       $('photoClear').style.display = 'inline-block';
       $('photoDrop').textContent = '写真を変更する';
+    }, () => {
+      alert('この画像を読み込めませんでした。別の写真でお試しください。');
+      $('photoInput').value = '';
+      $('photoDrop').textContent = photoDataUrl ? '写真を変更する' : 'タップして写真を選択（任意）';
     });
   });
   $('photoClear').addEventListener('click', () => {
@@ -346,10 +372,12 @@
     $('photoDrop').textContent = 'タップして写真を選択（任意）';
   });
 
-  function compressImage(file, cb) {
+  function compressImage(file, cb, onError) {
     const reader = new FileReader();
+    reader.onerror = () => { if (onError) onError(); };
     reader.onload = (e) => {
       const img = new Image();
+      img.onerror = () => { if (onError) onError(); };
       img.onload = () => {
         const tryCompress = (maxW, quality) => {
           const scale = Math.min(1, maxW / img.width);

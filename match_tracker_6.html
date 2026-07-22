@@ -121,7 +121,10 @@
   .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 30px; padding: 0 4px; opacity: 0.7; }
   .mt-edit:hover { opacity: 1; }
 
-  .mt-year-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .mt-year-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .mt-year-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mt-year-total { font-family: 'Space Mono', monospace; font-size: 22px; color: var(--ink-soft); white-space: nowrap; }
+  .mt-year-total strong { font-size: 28px; font-weight: 700; color: var(--felt); margin: 0 3px; }
   .mt-year-pill { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--ink-soft); }
   .mt-year-pill:hover { border-color: var(--brass); }
   .mt-year-pill.active { background: var(--brass); border-color: var(--brass); color: #fff; }
@@ -832,9 +835,16 @@
     if (rankingYearFilter !== 'all' && !years.includes(rankingYearFilter)) rankingYearFilter = 'all';
 
     const options = [{ key: 'all', label: '全期間' }, ...years.map(y => ({ key: y, label: y + '年' }))];
-    row.innerHTML = options.map(o =>
-      `<button type="button" class="mt-year-pill${o.key === rankingYearFilter ? ' active' : ''}" data-year="${escapeAttr(o.key)}">${escapeHtml(o.label)}</button>`
-    ).join('');
+    const total = entries
+      .filter(e => rankingYearFilter === 'all' || entryYear(e) === rankingYearFilter)
+      .reduce((sum, e) => sum + e.points, 0);
+
+    row.innerHTML = `
+      <div class="mt-year-pills">${options.map(o =>
+        `<button type="button" class="mt-year-pill${o.key === rankingYearFilter ? ' active' : ''}" data-year="${escapeAttr(o.key)}">${escapeHtml(o.label)}</button>`
+      ).join('')}</div>
+      <div class="mt-year-total">合計<strong>${total.toLocaleString()}</strong>pt</div>
+    `;
 
     row.querySelectorAll('.mt-year-pill').forEach(btn => {
       btn.addEventListener('click', () => {

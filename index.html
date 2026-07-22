@@ -27,11 +27,11 @@
 
   .mt-hero { padding: 26px 24px 18px; border-bottom: 3px solid var(--brass); text-align: center; background-color: var(--felt); background-image: url('assets/trophy-bg.png'); background-repeat: no-repeat; background-position: right -10px top -10px; background-size: 100px auto; }
   .mt-logo { max-width: 320px; width: 70%; height: auto; margin: 0 auto 10px; display: block; }
-  .mt-eyebrow { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.28em; color: var(--brass-bright); text-transform: uppercase; margin: 0; }
-  .mt-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 25px; color: var(--chalk); margin: 0; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .mt-eyebrow { font-family: 'Space Mono', monospace; font-size: 22px; letter-spacing: 0.28em; color: var(--brass-bright); text-transform: uppercase; margin: 0; }
+  .mt-title { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 50px; color: var(--chalk); margin: 0; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
   .mt-tabs { display: flex; gap: 4px; padding: 0 16px; background: var(--felt-deep); border-bottom: 1px solid rgba(255,255,255,0.08); overflow-x: auto; }
-  .mt-tab { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 13px; letter-spacing: 0.03em; color: rgba(246,242,233,0.55); background: transparent; border: none; padding: 12px 12px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .mt-tab { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 26px; letter-spacing: 0.03em; color: rgba(246,242,233,0.55); background: transparent; border: none; padding: 12px 12px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
   .mt-tab:hover { color: rgba(246,242,233,0.85); }
   .mt-tab.active { color: var(--brass-bright); border-bottom-color: var(--brass); }
 
@@ -41,87 +41,88 @@
   @keyframes mtFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
   .mt-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
-  .mt-label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
+  .mt-label { display: block; font-size: 24px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
   .mt-row { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
   .mt-row > div { flex: 1; min-width: 130px; }
 
   input[type="text"], input[type="date"], input[type="number"], select {
     width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px;
-    font-size: 14px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk);
+    font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk);
   }
   input:focus, select:focus { outline: none; border-color: var(--brass); background: #fff; }
 
   .mt-photo-row { display: flex; align-items: center; gap: 12px; }
   .mt-photo-drop {
     flex: 1; border: 1.5px dashed var(--line); border-radius: 8px; padding: 16px; text-align: center;
-    cursor: pointer; color: var(--ink-soft); font-size: 13px; background: var(--chalk);
+    cursor: pointer; color: var(--ink-soft); font-size: 26px; background: var(--chalk);
   }
   .mt-photo-drop:hover { border-color: var(--brass); }
   .mt-photo-preview { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--line); display: none; flex-shrink: 0; }
-  .mt-photo-clear { font-size: 12px; color: var(--loss-red); background: none; border: none; cursor: pointer; margin-top: 6px; display: none; }
+  .mt-photo-clear { font-size: 24px; color: var(--loss-red); background: none; border: none; cursor: pointer; margin-top: 6px; display: none; }
 
-  .mt-submit { width: 100%; padding: 13px; background: var(--brass); color: var(--felt-deep); border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 15px; letter-spacing: 0.03em; cursor: pointer; }
+  .mt-submit { width: 100%; padding: 13px; background: var(--brass); color: var(--felt-deep); border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 30px; letter-spacing: 0.03em; cursor: pointer; }
   .mt-submit:hover { background: var(--brass-bright); }
   .mt-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .mt-toast { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--win-green); display: none; }
-  .mt-error { margin-top: 10px; font-size: 13px; font-weight: 500; color: var(--loss-red); display: none; }
+  .mt-toast { margin-top: 10px; font-size: 26px; font-weight: 500; color: var(--win-green); display: none; }
+  .mt-error { margin-top: 10px; font-size: 26px; font-weight: 500; color: var(--loss-red); display: none; }
 
   .mt-lb-row { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
   .mt-lb-row:last-child { border-bottom: none; }
-  .mt-rank { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; color: var(--ink-soft); text-align: center; }
-  .mt-lb-row:nth-child(1) .mt-rank { color: var(--brass); font-size: 20px; }
-  .mt-lb-name { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 16px; }
-  .mt-lb-sub { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
-  .mt-lb-points { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: var(--felt); text-align: right; }
-  .mt-lb-points span { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-left: 3px; }
+  .mt-rank { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 32px; color: var(--ink-soft); text-align: center; }
+  .mt-lb-row:nth-child(1) .mt-rank { color: var(--brass); font-size: 40px; }
+  .mt-lb-name { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 32px; }
+  .mt-lb-sub { font-family: 'Space Mono', monospace; font-size: 22px; color: var(--ink-soft); margin-top: 2px; }
+  .mt-lb-years { font-family: 'Space Mono', monospace; font-size: 20px; color: var(--ink-soft); margin-top: 3px; opacity: 0.85; }
+  .mt-lb-points { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 40px; color: var(--felt); text-align: right; }
+  .mt-lb-points span { font-size: 22px; font-weight: 400; color: var(--ink-soft); margin-left: 3px; }
 
-  .mt-empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-size: 14px; }
+  .mt-empty { text-align: center; padding: 40px 20px; color: var(--ink-soft); font-size: 28px; }
 
-  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; background: #fff; }
+  .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 26px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
   .mt-hist-item.is-settled { background: #E7E5E1; }
   .mt-settle-toggle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; width: 54px; text-align: center; cursor: pointer; align-self: center; }
   .mt-settle-toggle input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--brass); }
-  .mt-settle-toggle span { font-size: 9px; line-height: 1.3; color: var(--ink-soft); }
+  .mt-settle-toggle span { font-size: 18px; line-height: 1.3; color: var(--ink-soft); }
   .mt-hist-thumb { width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--chalk); }
   .mt-hist-main { flex: 1; min-width: 0; }
-  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 14px; }
-  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
-  .mt-hist-note { font-size: 12px; color: var(--ink-soft); margin-top: 3px; }
+  .mt-hist-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 28px; }
+  .mt-hist-tags { font-family: 'Space Mono', monospace; font-size: 22px; color: var(--ink-soft); margin-top: 2px; }
+  .mt-hist-note { font-size: 24px; color: var(--ink-soft); margin-top: 3px; }
   .mt-hist-pts { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--felt); align-self: center; white-space: nowrap; flex-shrink: 0; text-align: right; }
-  .mt-hist-pts span { font-size: 11px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
-  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 10px; font-weight: 500; color: var(--ink-soft); }
-  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 16px; padding: 0 4px; opacity: 0.6; align-self: center; }
+  .mt-hist-pts span { font-size: 22px; font-weight: 400; color: var(--ink-soft); margin-left: 2px; }
+  .mt-hist-pts small { display: block; font-family: 'Noto Sans JP', sans-serif; font-size: 20px; font-weight: 500; color: var(--ink-soft); }
+  .mt-del { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 32px; padding: 0 4px; opacity: 0.6; align-self: center; }
   .mt-del:hover { opacity: 1; }
 
-  .mt-settings-desc { font-size: 12px; color: var(--ink-soft); margin: -8px 0 14px; line-height: 1.6; }
+  .mt-settings-desc { font-size: 24px; color: var(--ink-soft); margin: -8px 0 14px; line-height: 1.6; }
 
   .mt-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-  .mt-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--chalk); border: 1px solid var(--line); border-radius: 20px; padding: 5px 6px 5px 12px; font-size: 12px; }
-  .mt-chip button { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; }
+  .mt-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--chalk); border: 1px solid var(--line); border-radius: 20px; padding: 5px 6px 5px 12px; font-size: 24px; }
+  .mt-chip button { background: none; border: none; color: var(--loss-red); cursor: pointer; font-size: 28px; line-height: 1; padding: 2px 4px; }
   .mt-add-row { display: flex; gap: 8px; margin-bottom: 6px; }
   .mt-add-row input { flex: 1; }
-  .mt-add-tag { font-size: 12px; color: var(--felt); background: none; border: 1px dashed var(--line); border-radius: 6px; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+  .mt-add-tag { font-size: 24px; color: var(--felt); background: none; border: 1px dashed var(--line); border-radius: 6px; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
 
   .mt-matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
   table.mt-matrix { border-collapse: collapse; width: 100%; min-width: 420px; }
-  table.mt-matrix th, table.mt-matrix td { border: 1px solid var(--line); padding: 6px; text-align: center; font-size: 12px; }
-  table.mt-matrix thead th { background: var(--felt); color: var(--chalk); font-family: 'Playfair Display', serif; font-weight: 600; font-size: 12px; }
+  table.mt-matrix th, table.mt-matrix td { border: 1px solid var(--line); padding: 6px; text-align: center; font-size: 24px; }
+  table.mt-matrix thead th { background: var(--felt); color: var(--chalk); font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; }
   table.mt-matrix tbody th { text-align: left; background: var(--chalk); font-weight: 600; white-space: nowrap; padding-left: 10px; }
-  table.mt-matrix input[type="number"] { width: 56px; padding: 4px; text-align: center; font-size: 12px; }
+  table.mt-matrix input[type="number"] { width: 56px; padding: 4px; text-align: center; font-size: 24px; }
 
-  .mt-share-note { background: rgba(47,156,93,0.08); border: 1px solid rgba(47,156,93,0.3); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.6; }
+  .mt-share-note { background: rgba(47,156,93,0.08); border: 1px solid rgba(47,156,93,0.3); border-radius: 8px; padding: 10px 14px; font-size: 24px; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.6; }
 
-  .mt-edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(47,156,93,0.12); border: 1px solid var(--brass); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
-  .mt-edit-banner button { font-size: 12px; color: var(--felt); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+  .mt-edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(47,156,93,0.12); border: 1px solid var(--brass); border-radius: 8px; padding: 10px 14px; font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+  .mt-edit-banner button { font-size: 24px; color: var(--felt); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
 
   .mt-hist-actions { display: flex; flex-direction: column; gap: 4px; align-self: center; flex-shrink: 0; }
-  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 15px; padding: 0 4px; opacity: 0.7; }
+  .mt-edit { background: none; border: none; color: var(--brass); cursor: pointer; font-size: 30px; padding: 0 4px; opacity: 0.7; }
   .mt-edit:hover { opacity: 1; }
 
   .mt-year-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .mt-year-pill { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--ink-soft); }
+  .mt-year-pill { font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--ink-soft); }
   .mt-year-pill:hover { border-color: var(--brass); }
   .mt-year-pill.active { background: var(--brass); border-color: var(--brass); color: #fff; }
 </style>
@@ -214,6 +215,7 @@
 
     <!-- HISTORY -->
     <div class="mt-panel" id="panel-history">
+      <div class="mt-year-row" id="historyYearRow"></div>
       <div class="mt-card" style="padding:0; overflow:hidden;">
         <div id="historyList"></div>
       </div>
@@ -810,6 +812,18 @@
     return Object.values(stats).sort((a, b) => b.points - a.points);
   }
 
+  function computeYearBreakdown() {
+    const breakdown = {};
+    entries.forEach(e => {
+      const key = normalizeName(e.playerName);
+      const year = entryYear(e);
+      if (!key || !year) return;
+      if (!breakdown[key]) breakdown[key] = {};
+      breakdown[key][year] = (breakdown[key][year] || 0) + e.points;
+    });
+    return breakdown;
+  }
+
   function renderYearRow() {
     const row = $('rankingYearRow');
     const years = Array.from(new Set(entries.map(entryYear).filter(Boolean))).sort((a, b) => b - a);
@@ -838,26 +852,62 @@
       board.innerHTML = '<div class="mt-empty">まだ試合結果がありません。「結果を入力」タブから登録してください。</div>';
       return;
     }
-    board.innerHTML = standings.map((s, i) => `
+    const yearBreakdown = rankingYearFilter === 'all' ? computeYearBreakdown() : {};
+
+    board.innerHTML = standings.map((s, i) => {
+      const byYear = yearBreakdown[normalizeName(s.name)] || {};
+      const yearLine = Object.keys(byYear).sort((a, b) => b - a)
+        .map(y => `${y}年 ${byYear[y].toLocaleString()}pt`).join(' ・ ');
+      return `
       <div class="mt-lb-row">
         <div class="mt-rank">${i + 1}</div>
         <div>
           <div class="mt-lb-name">${escapeHtml(s.name)}</div>
           <div class="mt-lb-sub">${s.played}試合出場</div>
+          ${yearLine ? `<div class="mt-lb-years">${escapeHtml(yearLine)}</div>` : ''}
         </div>
         <div class="mt-lb-points">${s.points.toLocaleString()}<span>pt</span></div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   // ---------- History ----------
+  let historyYearFilter = 'all';
+
+  function renderHistoryYearRow() {
+    const row = $('historyYearRow');
+    const years = Array.from(new Set(entries.map(entryYear).filter(Boolean))).sort((a, b) => b - a);
+
+    if (years.length === 0) { row.innerHTML = ''; return; }
+    if (historyYearFilter !== 'all' && !years.includes(historyYearFilter)) historyYearFilter = 'all';
+
+    const options = [{ key: 'all', label: '全期間' }, ...years.map(y => ({ key: y, label: y + '年' }))];
+    row.innerHTML = options.map(o =>
+      `<button type="button" class="mt-year-pill${o.key === historyYearFilter ? ' active' : ''}" data-year="${escapeAttr(o.key)}">${escapeHtml(o.label)}</button>`
+    ).join('');
+
+    row.querySelectorAll('.mt-year-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        historyYearFilter = btn.dataset.year;
+        renderHistory();
+      });
+    });
+  }
+
   function renderHistory() {
+    renderHistoryYearRow();
     const list = $('historyList');
     if (entries.length === 0) {
       list.innerHTML = '<div class="mt-empty">履歴はまだありません。</div>';
       return;
     }
-    const sorted = [...entries].sort((a, b) => b.createdAt - a.createdAt);
+    const filtered = historyYearFilter === 'all' ? entries : entries.filter(e => entryYear(e) === historyYearFilter);
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="mt-empty">この年の履歴はありません。</div>';
+      return;
+    }
+    const sorted = [...filtered].sort((a, b) => b.createdAt - a.createdAt);
     list.innerHTML = sorted.map(e => `
       <div class="mt-hist-item${e.settled ? ' is-settled' : ''}">
         <label class="mt-settle-toggle">

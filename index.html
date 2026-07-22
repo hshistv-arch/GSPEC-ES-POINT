@@ -240,10 +240,6 @@
 
 <script>
 (function() {
-  const KEY_ENTRIES_OLD = 'match-tracker:entries-v3';
-  const ENTRY_PREFIX = 'match-tracker:entry:';
-  const KEY_CONFIG = 'match-tracker:rules-v3';
-
   const DEFAULT_RANKS = ['SSG', 'SG', 'G1', 'G2', 'G3'];
   const DEFAULT_RESULTS = ['予選敗退', 'ベスト64', 'ベスト32', 'ベスト16', 'ベスト8', 'ベスト4', '準優勝', '優勝'];
   const DEFAULT_MATRIX = {
@@ -354,60 +350,42 @@
     reader.readAsDataURL(file);
   }
 
-  // ---------- Storage ----------
-  async function loadEntriesFromStorage() {
-    let keys = [];
-    try {
-      const res = await window.storage.list(ENTRY_PREFIX, true);
-      keys = (res && res.keys) ? res.keys : [];
-    } catch (e) { keys = []; }
-
-    const loaded = [];
-    for (const k of keys) {
-      const keyStr = typeof k === 'string' ? k : (k && (k.key || k.name));
-      if (!keyStr) continue;
-      try {
-        const r = await window.storage.get(keyStr, true);
-        if (r && r.value) loaded.push(JSON.parse(r.value));
-      } catch (e) { /* skip unreadable entry */ }
-    }
-    return loaded;
+  // ---------- Storage (server API backed by Vercel KV, shared by all participants) ----------
+  async function apiGet(path) {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
   }
-
-  async function migrateOldEntriesIfNeeded(currentEntries) {
-    if (currentEntries.length > 0) return currentEntries;
-    try {
-      const old = await window.storage.get(KEY_ENTRIES_OLD, true);
-      if (old && old.value) {
-        const arr = JSON.parse(old.value);
-        if (Array.isArray(arr) && arr.length) {
-          for (const e of arr) {
-            try { await window.storage.set(ENTRY_PREFIX + e.id, JSON.stringify(e), true); } catch (err) { /* skip */ }
-          }
-          return arr;
-        }
-      }
-    } catch (e) { /* no old data */ }
-    return currentEntries;
+  async function apiSend(path, method, body) {
+    const res = await fetch(path, {
+      method,
+      headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json().catch(() => ({}));
   }
 
   async function loadData() {
-    if (typeof window.storage === 'undefined' || !window.storage) {
-      const w = $('storageWarning');
-      w.textContent = 'このプレビュー環境では保存機能（window.storage）が利用できないため、結果を登録できません。Claude.aiでこのアーティファクトを開いた状態でお試しください。';
-      w.style.display = 'block';
-      renderLeaderboard();
-      renderHistory();
-      return;
-    }
-
-    entries = await loadEntriesFromStorage();
-    entries = await migrateOldEntriesIfNeeded(entries);
+    let apiOk = true;
 
     try {
-      const c = await window.storage.get(KEY_CONFIG, true);
-      config = c && c.value ? JSON.parse(c.value) : defaultConfig();
-    } catch (e) { config = defaultConfig(); }
+      const data = await apiGet('/api/entries');
+      entries = Array.isArray(data.entries) ? data.entries : [];
+    } catch (e) { apiOk = false; entries = []; }
+
+    try {
+      const data = await apiGet('/api/config');
+      config = data && data.config ? data.config : defaultConfig();
+    } catch (e) { apiOk = false; config = defaultConfig(); }
+
+    const w = $('storageWarning');
+    if (!apiOk) {
+      w.textContent = 'サーバーへの接続に失敗しました。Vercelのデータベース（KV）が設定されているか確認してください。';
+      w.style.display = 'block';
+    } else {
+      w.style.display = 'none';
+    }
 
     if (!config.ranks || !config.ranks.length) config = defaultConfig();
 
@@ -420,9 +398,9 @@
     updatePointsPreview();
   }
 
-  async function saveEntry(entry) { await window.storage.set(ENTRY_PREFIX + entry.id, JSON.stringify(entry), true); }
-  async function deleteEntryFromStorage(id) { await window.storage.delete(ENTRY_PREFIX + id, true); }
-  async function saveConfig() { await window.storage.set(KEY_CONFIG, JSON.stringify(config), true); }
+  async function saveEntry(entry) { await apiSend('/api/entries', 'POST', entry); }
+  async function deleteEntryFromStorage(id) { await apiSend('/api/entries?id=' + encodeURIComponent(id), 'DELETE'); }
+  async function saveConfig() { await apiSend('/api/config', 'POST', config); }
 
   function updatePlayerList() {
     const names = new Set(entries.map(e => e.playerName));

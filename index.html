@@ -1046,7 +1046,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     return e.matchDate ? e.matchDate.slice(0, 4) : null;
   }
 
-  let rankingYearFilter = 'all';
+  let rankingYearFilter = null;
 
   function computeStandings(yearFilter) {
     const stats = {};
@@ -1079,7 +1079,11 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     const years = Array.from(new Set(entries.map(entryYear).filter(Boolean))).sort((a, b) => b - a);
 
     if (years.length === 0) { row.innerHTML = ''; return; }
-    if (rankingYearFilter !== 'all' && !years.includes(rankingYearFilter)) rankingYearFilter = 'all';
+    if (rankingYearFilter === null) {
+      rankingYearFilter = years[0];
+    } else if (rankingYearFilter !== 'all' && !years.includes(rankingYearFilter)) {
+      rankingYearFilter = 'all';
+    }
 
     const options = [{ key: 'all', label: '全期間' }, ...years.map(y => ({ key: y, label: y + '年' }))];
     const total = entries
@@ -1135,14 +1139,18 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
   }
 
   // ---------- History ----------
-  let historyYearFilter = 'all';
+  let historyYearFilter = null;
 
   function renderHistoryYearRow() {
     const row = $('historyYearRow');
     const years = Array.from(new Set(entries.map(entryYear).filter(Boolean))).sort((a, b) => b - a);
 
     if (years.length === 0) { row.innerHTML = ''; return; }
-    if (historyYearFilter !== 'all' && !years.includes(historyYearFilter)) historyYearFilter = 'all';
+    if (historyYearFilter === null) {
+      historyYearFilter = years[0];
+    } else if (historyYearFilter !== 'all' && !years.includes(historyYearFilter)) {
+      historyYearFilter = 'all';
+    }
 
     const options = [{ key: 'all', label: '全期間' }, ...years.map(y => ({ key: y, label: y + '年' }))];
     row.innerHTML = options.map(o =>

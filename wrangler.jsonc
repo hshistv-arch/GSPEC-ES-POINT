@@ -1,0 +1,13 @@
+{
+  "name": "gspec-es-point",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "gspec-es-point" }
+  ]
+}

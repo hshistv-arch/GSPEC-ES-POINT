@@ -1,0 +1,10 @@
+.assetsignore
+.git
+.wrangler
+node_modules
+api
+worker
+package.json
+package-lock.json
+wrangler.jsonc
+match_tracker_6.html

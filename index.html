@@ -88,9 +88,9 @@
   .mt-rules-input { width: 100%; min-height: 420px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk); line-height: 1.6; resize: vertical; }
 
   .mt-hist-thumb.mt-zoomable, .mt-photo-preview { cursor: zoom-in; }
-  .mt-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; align-items: center; justify-content: center; padding: 24px; cursor: zoom-out; }
+  .mt-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; align-items: center; justify-content: center; padding: 12px; cursor: zoom-out; overflow: hidden; }
   .mt-lightbox.active { display: flex; }
-  .mt-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+  .mt-lightbox img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
 
   .mt-hist-item { display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 30px; background: #fff; }
   .mt-hist-item:last-child { border-bottom: none; }
@@ -136,6 +136,8 @@
 
   .mt-year-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
   .mt-year-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .mt-export-btn { font-family: 'Noto Sans JP', sans-serif; font-size: 24px; font-weight: 700; background: var(--brass); color: #fff; border: none; border-radius: 20px; padding: 8px 18px; cursor: pointer; white-space: nowrap; }
+  .mt-export-btn:hover { background: var(--brass-bright); }
   .mt-year-total { font-family: 'Space Mono', monospace; font-size: 33px; color: var(--ink-soft); white-space: nowrap; }
   .mt-year-total strong { font-size: 42px; font-weight: 700; color: var(--felt); margin: 0 3px; }
   .mt-year-pill { font-family: 'Space Mono', monospace; font-size: 36px; font-weight: 700; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 6px 14px; cursor: pointer; color: var(--ink-soft); }
@@ -323,6 +325,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script>
 (function() {
   const DEFAULT_RANKS = ['SSG', 'SG', 'G1', 'G2', 'G3'];
@@ -462,14 +465,32 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
   $('matchDate').addEventListener('change', updatePointsPreview);
 
   // ---------- Photo lightbox ----------
+  // Size the overlay to the part of the page the person is actually looking at,
+  // so the photo always fits the phone screen (the page itself is wider than the screen).
+  function fitLightbox() {
+    const lb = $('photoLightbox');
+    const vv = window.visualViewport;
+    if (!vv || !lb.classList.contains('active')) return;
+    lb.style.right = 'auto';
+    lb.style.bottom = 'auto';
+    lb.style.left = vv.offsetLeft + 'px';
+    lb.style.top = vv.offsetTop + 'px';
+    lb.style.width = vv.width + 'px';
+    lb.style.height = vv.height + 'px';
+  }
   function openLightbox(src) {
     if (!src) return;
     $('lightboxImg').src = src;
     $('photoLightbox').classList.add('active');
+    fitLightbox();
   }
   function closeLightbox() {
     $('photoLightbox').classList.remove('active');
     $('lightboxImg').src = '';
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fitLightbox);
+    window.visualViewport.addEventListener('scroll', fitLightbox);
   }
   $('photoLightbox').addEventListener('click', closeLightbox);
   $('photoPreview').addEventListener('click', () => openLightbox($('photoPreview').src));
@@ -1154,9 +1175,12 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     }
 
     const options = [{ key: 'all', label: '全期間' }, ...years.map(y => ({ key: y, label: y + '年' }))];
-    row.innerHTML = options.map(o =>
-      `<button type="button" class="mt-year-pill${o.key === historyYearFilter ? ' active' : ''}" data-year="${escapeAttr(o.key)}">${escapeHtml(o.label)}</button>`
-    ).join('');
+    row.innerHTML = `
+      <div class="mt-year-pills">${options.map(o =>
+        `<button type="button" class="mt-year-pill${o.key === historyYearFilter ? ' active' : ''}" data-year="${escapeAttr(o.key)}">${escapeHtml(o.label)}</button>`
+      ).join('')}</div>
+      <button type="button" class="mt-export-btn" id="exportExcelBtn">📥 Excelに書き出す</button>
+    `;
 
     row.querySelectorAll('.mt-year-pill').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1164,6 +1188,48 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
         renderHistory();
       });
     });
+    $('exportExcelBtn').addEventListener('click', exportExcel);
+  }
+
+  // ---------- Excel export (per year) ----------
+  function exportExcel() {
+    if (typeof XLSX === 'undefined') {
+      alert('Excel出力の準備がまだ整っていません。数秒待ってからもう一度お試しください。');
+      return;
+    }
+    const years = historyYearFilter === 'all'
+      ? Array.from(new Set(entries.map(entryYear).filter(Boolean))).sort()
+      : [historyYearFilter];
+    if (!years.length) { alert('書き出す記録がありません。'); return; }
+
+    const wb = XLSX.utils.book_new();
+    years.forEach(y => {
+      const list = entries
+        .filter(e => entryYear(e) === y)
+        .sort((a, b) => (a.matchDate || '').localeCompare(b.matchDate || '') || a.createdAt - b.createdAt);
+
+      const resultRows = [['試合日', '選手名', '試合名', 'ランク', '結果', 'エントリーフィー(円)', '還元率(%)', '獲得ポイント', '精算状況', 'メモ']]
+        .concat(list.map(e => [
+          e.matchDate || '', e.playerName, e.matchName, e.rankName, e.resultName,
+          Number(e.entryFee) || 0, Number(e.percent) || 0, Number(e.points) || 0,
+          e.settled ? '精算済' : '未精算', e.note || ''
+        ]));
+      const wsResults = XLSX.utils.aoa_to_sheet(resultRows);
+      wsResults['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 28 }, { wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 30 }];
+      XLSX.utils.book_append_sheet(wb, wsResults, y + '年 試合結果');
+
+      const unsettled = {};
+      list.forEach(e => {
+        if (!e.settled) unsettled[normalizeName(e.playerName)] = (unsettled[normalizeName(e.playerName)] || 0) + (Number(e.points) || 0);
+      });
+      const totalRows = [['順位', '選手名', '試合数', '合計ポイント', 'うち未精算ポイント']]
+        .concat(computeStandings(y).map((s, i) => [i + 1, s.name, s.played, s.points, unsettled[normalizeName(s.name)] || 0]));
+      const wsTotals = XLSX.utils.aoa_to_sheet(totalRows);
+      wsTotals['!cols'] = [{ wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsTotals, y + '年 選手別合計');
+    });
+
+    XLSX.writeFile(wb, 'ESポイント_' + (historyYearFilter === 'all' ? '全期間' : historyYearFilter + '年') + '.xlsx');
   }
 
   function renderHistory() {

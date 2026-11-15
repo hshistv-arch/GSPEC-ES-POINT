@@ -88,6 +88,11 @@
   .mt-rules-input { width: 100%; min-height: 420px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk); line-height: 1.6; resize: vertical; }
 
   .mt-hist-thumb.mt-zoomable, .mt-photo-preview { cursor: zoom-in; }
+
+  .mt-line-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+  .mt-line-btn { display: inline-block; background: #06C755; color: #fff; font-size: 34px; font-weight: 700; text-decoration: none; padding: 14px 22px; border-radius: 8px; }
+  .mt-line-btn:hover { background: #05b34c; }
+  .mt-line-close { font-size: 26px; color: var(--ink-soft); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
   .mt-lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; align-items: center; justify-content: center; padding: 12px; cursor: zoom-out; overflow: hidden; }
   .mt-lightbox.active { display: flex; }
   .mt-lightbox img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
@@ -222,6 +227,10 @@
 
         <button class="mt-submit" id="submitMatch" style="margin-top:16px;">結果を登録する</button>
         <div class="mt-toast" id="submitToast">✓ 登録しました</div>
+        <div class="mt-line-share" id="lineShareBox" style="display:none;">
+          <a class="mt-line-btn" id="lineShareLink" href="#" target="_blank" rel="noopener">💬 LINEグループに登録を知らせる</a>
+          <button type="button" class="mt-line-close" id="lineShareClose">閉じる</button>
+        </div>
         <div class="mt-error" id="submitError"></div>
       </div>
     </div>
@@ -717,9 +726,20 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
   }
   $('cancelEditBtn').addEventListener('click', cancelEdit);
 
+  // ---------- LINE share (opens LINE with a prefilled message; the person picks the group and sends) ----------
+  function showLineShare(playerName, matchName) {
+    const text = '【ESポイント】' + playerName + 'さんの結果を登録しました。\n'
+      + '大会名：' + matchName + '\n'
+      + '詳細はこちら ' + location.origin + '/';
+    $('lineShareLink').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(text);
+    $('lineShareBox').style.display = 'flex';
+  }
+  $('lineShareClose').addEventListener('click', () => { $('lineShareBox').style.display = 'none'; });
+
   $('submitMatch').addEventListener('click', async () => {
     const errBox = $('submitError');
     errBox.style.display = 'none';
+    $('lineShareBox').style.display = 'none';
 
     const playerName = canonicalPlayerName($('playerName').value.trim());
     const matchName = $('matchName').value.trim();
@@ -786,6 +806,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     toast.textContent = isEditing ? '✓ 更新しました' : '✓ 登録しました';
     toast.style.display = 'block';
     setTimeout(() => { toast.style.display = 'none'; }, 2000);
+    if (!isEditing) showLineShare(playerName, matchName);
 
     $('playerName').value = '';
     $('matchName').value = '';

@@ -88,6 +88,12 @@
   .mt-rules-input { width: 100%; min-height: 420px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 7px; font-size: 28px; font-family: 'Noto Sans JP', sans-serif; color: var(--ink); background: var(--chalk); line-height: 1.6; resize: vertical; }
 
   .mt-hist-thumb.mt-zoomable, .mt-photo-preview { cursor: zoom-in; }
+  .mt-hint { margin-top: 6px; font-size: 24px; color: var(--win-green); line-height: 1.4; }
+  .mt-suggest { position: absolute; left: 0; right: 0; top: 100%; z-index: 60; background: #fff; border: 1.5px solid var(--brass); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-height: 420px; overflow-y: auto; margin-top: 2px; }
+  .mt-suggest-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; font-size: 30px; border-bottom: 1px solid var(--line); cursor: pointer; color: var(--ink); }
+  .mt-suggest-item:last-child { border-bottom: none; }
+  .mt-suggest-item:hover, .mt-suggest-item:active { background: rgba(47,156,93,0.12); }
+  .mt-suggest-item span { flex-shrink: 0; font-family: 'Space Mono', monospace; font-size: 24px; font-weight: 700; color: var(--brass); }
 
   .mt-line-share { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
   .mt-line-btn { display: inline-block; background: #06C755; color: #fff; font-size: 34px; font-weight: 700; text-decoration: none; padding: 14px 22px; border-radius: 8px; }
@@ -182,9 +188,10 @@
         <datalist id="playerList"></datalist>
 
         <div class="mt-row">
-          <div>
+          <div style="position:relative;">
             <label class="mt-label">試合名</label>
-            <input type="text" id="matchName" placeholder="例: 第3回ハウストーナメント">
+            <input type="text" id="matchName" autocomplete="off" placeholder="例: 第3回ハウストーナメント">
+            <div class="mt-suggest" id="matchSuggest" style="display:none;"></div>
           </div>
           <div>
             <label class="mt-label">試合日</label>
@@ -196,6 +203,7 @@
           <div>
             <label class="mt-label">試合ランク</label>
             <select id="matchRank"></select>
+            <div class="mt-hint" id="rankAutoHint" style="display:none;"></div>
           </div>
           <div>
             <label class="mt-label">結果</label>
@@ -717,6 +725,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     editingSettled = false;
     $('playerName').value = '';
     $('matchName').value = '';
+    resetRankAuto();
     $('entryFee').value = '';
     $('matchNote').value = '';
     $('photoClear').click();
@@ -725,6 +734,85 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     updatePointsPreview();
   }
   $('cancelEditBtn').addEventListener('click', cancelEdit);
+
+  // ---------- Auto-fill the match rank from past entries with the same match name ----------
+  function normalizeMatchName(name) {
+    return String(name || '').normalize('NFKC').replace(/\s+/g, '').toLowerCase();
+  }
+  function newestFirst(a, b) {
+    return (b.matchDate || '').localeCompare(a.matchDate || '') || (b.createdAt || 0) - (a.createdAt || 0);
+  }
+
+  let rankTouchedFor = null; // match name for which the person chose a rank by hand
+
+  function autofillRank() {
+    const hint = $('rankAutoHint');
+    const key = normalizeMatchName($('matchName').value);
+    if (!key) { hint.style.display = 'none'; return; }
+    if (rankTouchedFor === key) return; // respect a manual choice for this match name
+
+    const past = entries
+      .filter(e => normalizeMatchName(e.matchName) === key && config.ranks.includes(e.rankName))
+      .sort(newestFirst)[0];
+    if (!past) { hint.style.display = 'none'; return; }
+
+    $('matchRank').value = past.rankName;
+    updatePointsPreview();
+    hint.textContent = '過去の履歴から「' + past.rankName + '」を自動入力しました（変更できます）';
+    hint.style.display = 'block';
+  }
+
+  function resetRankAuto() {
+    hideMatchSuggest();
+    rankTouchedFor = null;
+    $('rankAutoHint').style.display = 'none';
+  }
+
+  // ---------- Match name suggestions: any part of a past match name ----------
+  function pastMatches() {
+    const seen = new Map();
+    [...entries].sort(newestFirst).forEach(e => {
+      const key = normalizeMatchName(e.matchName);
+      if (key && !seen.has(key)) seen.set(key, { key, name: e.matchName, rank: e.rankName });
+    });
+    return [...seen.values()];
+  }
+
+  function hideMatchSuggest() {
+    $('matchSuggest').style.display = 'none';
+  }
+
+  function showMatchSuggest() {
+    const box = $('matchSuggest');
+    const q = normalizeMatchName($('matchName').value);
+    if (!q) { hideMatchSuggest(); return; }
+
+    const found = pastMatches().filter(m => m.key.includes(q) && m.key !== q);
+    const hits = found.filter(m => m.key.startsWith(q)).concat(found.filter(m => !m.key.startsWith(q))).slice(0, 8);
+    if (!hits.length) { hideMatchSuggest(); return; }
+
+    box.innerHTML = hits.map(m =>
+      `<div class="mt-suggest-item" data-name="${escapeAttr(m.name)}">${escapeHtml(m.name)}<span>${escapeHtml(m.rank)}</span></div>`
+    ).join('');
+    box.querySelectorAll('.mt-suggest-item').forEach(item => {
+      item.addEventListener('click', () => {
+        $('matchName').value = item.dataset.name;
+        hideMatchSuggest();
+        autofillRank();
+      });
+    });
+    box.style.display = 'block';
+  }
+
+  $('matchName').addEventListener('input', showMatchSuggest);
+  $('matchName').addEventListener('blur', () => setTimeout(hideMatchSuggest, 200));
+  $('matchName').addEventListener('keydown', e => { if (e.key === 'Escape') hideMatchSuggest(); });
+  $('matchName').addEventListener('input', autofillRank);
+  $('matchName').addEventListener('change', autofillRank);
+  $('matchRank').addEventListener('change', () => {
+    rankTouchedFor = normalizeMatchName($('matchName').value);
+    $('rankAutoHint').style.display = 'none';
+  });
 
   // ---------- LINE share (opens LINE with a prefilled message; the person picks the group and sends) ----------
   function showLineShare(playerName, matchName) {
@@ -810,6 +898,7 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
 
     $('playerName').value = '';
     $('matchName').value = '';
+    resetRankAuto();
     $('entryFee').value = '';
     $('matchNote').value = '';
     $('photoClear').click();

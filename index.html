@@ -1224,10 +1224,18 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
     if (!years.length) { alert('書き出す記録がありません。'); return; }
 
     const wb = XLSX.utils.book_new();
+    const total = (value, formula) => ({ t: 'n', v: value, f: formula });
+    const yearSummary = [];
+
     years.forEach(y => {
       const list = entries
         .filter(e => entryYear(e) === y)
         .sort((a, b) => (a.matchDate || '').localeCompare(b.matchDate || '') || a.createdAt - b.createdAt);
+      const n = list.length;
+      const totalFee = list.reduce((s, e) => s + (Number(e.entryFee) || 0), 0);
+      const totalPts = list.reduce((s, e) => s + (Number(e.points) || 0), 0);
+      const unsettledPts = list.filter(e => !e.settled).reduce((s, e) => s + (Number(e.points) || 0), 0);
+      yearSummary.push([y + '年', n, totalPts, unsettledPts]);
 
       const resultRows = [['試合日', '選手名', '試合名', 'ランク', '結果', 'エントリーフィー(円)', '還元率(%)', '獲得ポイント', '精算状況', 'メモ']]
         .concat(list.map(e => [
@@ -1235,6 +1243,8 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
           Number(e.entryFee) || 0, Number(e.percent) || 0, Number(e.points) || 0,
           e.settled ? '精算済' : '未精算', e.note || ''
         ]));
+      resultRows.push(['合計', '', '', '', '', total(totalFee, 'SUM(F2:F' + (n + 1) + ')'), '', total(totalPts, 'SUM(H2:H' + (n + 1) + ')'), '', '']);
+      resultRows.push(['うち未精算', '', '', '', '', '', '', total(unsettledPts, 'SUMIF(I2:I' + (n + 1) + ',"未精算",H2:H' + (n + 1) + ')'), '', '']);
       const wsResults = XLSX.utils.aoa_to_sheet(resultRows);
       wsResults['!cols'] = [{ wch: 12 }, { wch: 14 }, { wch: 28 }, { wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 30 }];
       XLSX.utils.book_append_sheet(wb, wsResults, y + '年 試合結果');
@@ -1243,12 +1253,28 @@ G3クラス：アマチュアの試合 64人以上　／　主な大会：その
       list.forEach(e => {
         if (!e.settled) unsettled[normalizeName(e.playerName)] = (unsettled[normalizeName(e.playerName)] || 0) + (Number(e.points) || 0);
       });
+      const standings = computeStandings(y);
+      const m = standings.length;
       const totalRows = [['順位', '選手名', '試合数', '合計ポイント', 'うち未精算ポイント']]
-        .concat(computeStandings(y).map((s, i) => [i + 1, s.name, s.played, s.points, unsettled[normalizeName(s.name)] || 0]));
+        .concat(standings.map((s, i) => [i + 1, s.name, s.played, s.points, unsettled[normalizeName(s.name)] || 0]));
+      totalRows.push(['', '合計', total(n, 'SUM(C2:C' + (m + 1) + ')'), total(totalPts, 'SUM(D2:D' + (m + 1) + ')'), total(unsettledPts, 'SUM(E2:E' + (m + 1) + ')')]);
       const wsTotals = XLSX.utils.aoa_to_sheet(totalRows);
       wsTotals['!cols'] = [{ wch: 8 }, { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 20 }];
       XLSX.utils.book_append_sheet(wb, wsTotals, y + '年 選手別合計');
     });
+
+    if (historyYearFilter === 'all') {
+      const k = yearSummary.length;
+      const summaryRows = [['年度', '試合数', '合計ポイント', 'うち未精算ポイント']].concat(yearSummary);
+      summaryRows.push(['全期間 合計',
+        total(yearSummary.reduce((s, r) => s + r[1], 0), 'SUM(B2:B' + (k + 1) + ')'),
+        total(yearSummary.reduce((s, r) => s + r[2], 0), 'SUM(C2:C' + (k + 1) + ')'),
+        total(yearSummary.reduce((s, r) => s + r[3], 0), 'SUM(D2:D' + (k + 1) + ')')]);
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+      wsSummary['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsSummary, '年度別合計');
+      wb.SheetNames.unshift(wb.SheetNames.pop());
+    }
 
     XLSX.writeFile(wb, 'ESポイント_' + (historyYearFilter === 'all' ? '全期間' : historyYearFilter + '年') + '.xlsx');
   }
